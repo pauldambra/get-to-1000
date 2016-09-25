@@ -1,0 +1,188 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Get to 1000</title>
+
+  <style>
+  	html {height: 100%; font-size: 24px;}
+  	body {
+  		height: 100%; 
+  		background-color: #dceceb; 
+  		display: flex; 
+  		flex-direction: column;
+  	}
+  	.row {
+  		width: 95%; 
+  		min-height: 2em;
+  		margin: 0 auto; 
+  		text-align: center;
+  		font-size: 2em;
+  		line-height: 2em;
+  		vertical-align: middle;
+  	}
+  	input  {
+  		line-height: 2em;
+  		font-size: 1em;
+  		text-align: center;
+  		width: 2.5em;
+  	}
+  	.tick {color:green;}
+  	.cross {color:red;}
+  	.mark-holder {width: 1em; display: inline-block;}
+  	#done { padding-top:1em; }
+  	#done img { 
+  		width: 100%; 
+  		max-width: 650px; 
+  		display: block; 
+  		margin: auto;
+  	}
+  	#done button {
+  		background-color: #c4bbbe;
+	    font-size: 0.75em;
+	    border: 0;
+	    border-radius: 10px;
+	    padding: 0.3em;
+	    cursor: pointer;
+  	}
+  </style>
+<body>
+	<div id="initial-number" class="row"></div>
+	<div id="nearest-ten" class="row">
+		To get to the nearest 10 add: <input type="number" max="10" min="0" step="1"/>
+		<div class="mark-holder">
+			<span class="tick" style="display: none;">✓</span>
+			<span class="cross" style="display: none;">✘</span>
+		</div>
+	</div>
+	<div id="nearest-hundred" class="row" style="display: none;">
+		<div>That's <span class="start"></span></div>
+		<div>
+			To get to the nearest 100 add: <input type="number" max="99" min="0" step="1"/>			
+			<div class="mark-holder">
+				<span class="tick" style="display: none;">✓</span>
+				<span class="cross" style="display: none;">✘</span>
+			</div>
+		</div>
+	</div>
+	<div id="nearest-thousand" class="row" style="display: none;">
+		<div>That's <span class="start"></span></div>
+		<div>
+			To get to 1000 add: <input type="number" max="99" min="0" step="1"/>			
+			<div class="mark-holder">
+				<span class="tick" style="display: none;">✓</span>
+				<span class="cross" style="display: none;">✘</span>
+			</div>
+		</div>
+	</div>
+	<div id="done" class="row" style="display: none;">
+		<div class="result">
+			
+		</div>
+		<button>
+			Awesome, Again?
+		</button>
+		<img id="cat-gif" src="">
+	</div>
+
+	<script>
+		var catGifUrl = "http://thecatapi.com/api/images/get?format=src&type=gif";
+
+		var diffToNearest = function(n, i) {
+			var diff = (Math.ceil(i/n)*n) - i;
+			console.log(diff, 'diff');
+			return diff;
+		};
+
+		var setupRow = function(id, start, correctDiff, onCorrect) {
+			return function() {
+				var row = document.getElementById(id);
+				row.style.display = "";
+				
+				if (row.querySelectorAll(".start").length > 0) {
+					row.querySelectorAll(".start")[0].innerHTML = start;
+				}
+
+				row.querySelectorAll("input")[0].addEventListener('input', function(e) {
+					var answer = parseInt(this.value, 10);
+					var answerCorrect = answer === correctDiff;
+					row.querySelectorAll(".tick")[0].style.display = answerCorrect ? "" : "none";
+					row.querySelectorAll(".cross")[0].style.display =  answerCorrect ? "none" : "";
+
+					if (answerCorrect) { 
+						console.log('an answer was correct');
+						console.log(onCorrect);
+						setTimeout(onCorrect, 500)
+					}
+				});
+			};
+		};
+
+		var start;
+		var tensDiff;
+		var nearestHundredStart;
+		var hundredsDiff;
+		var nearestThousandStart;
+		var thousandDiff;
+		var setupNearestThousand;
+		var setupNearestHundred;
+		var setupNearestTen;
+
+		var hideAll = function(selector) {
+			var nodes = document.querySelectorAll(selector);
+			for (var i = 0; i < nodes.length; i++) {
+			    nodes[i].style.display = "none";
+			}
+		}
+
+		var unsetAll = function() {
+			var nodes = document.querySelectorAll("input");
+			for (var i = 0; i < nodes.length; i++) {
+			    nodes[i].value = "";
+			}
+		}
+
+		var setupPage = function() {
+			var newUrl = catGifUrl + "&cacheBuster=" + new Date().getTime();
+			document.getElementById("cat-gif").src = newUrl;
+
+			start = (Math.floor(Math.random() * 1000) + 1);
+			tensDiff = diffToNearest(10, start);
+			nearestHundredStart = start + tensDiff;
+			hundredsDiff = diffToNearest(100, nearestHundredStart);
+			nearestThousandStart = nearestHundredStart + hundredsDiff;
+			thousandDiff = diffToNearest(1000, nearestThousandStart);
+
+			hideAll(".row");
+			hideAll(".mark-holder span");
+			unsetAll();
+
+			var initialRow = document.getElementById("initial-number");
+			initialRow.style.display = "";
+			initialRow.innerHTML = 'Your starting number is ' + start;
+
+			setupNearestThousand = setupRow("nearest-thousand", nearestThousandStart, thousandDiff, showDoneButton);
+			setupNearestHundred = setupRow("nearest-hundred", nearestHundredStart, hundredsDiff, setupNearestThousand);
+			setupNearestTen = setupRow("nearest-ten", start, tensDiff, setupNearestHundred);
+
+			setupNearestTen();
+		};
+
+		document.getElementById("done").addEventListener("click", function() {
+			setupPage();
+		});
+
+		var showDoneButton = function() {
+			hideAll(".row");
+			var buttonHolder = document.getElementById("done");
+			buttonHolder.querySelectorAll(".result")[0].innerHTML = start + " + " + tensDiff  + " + " + hundredsDiff  + " + " + thousandDiff + " = 1000"
+			buttonHolder.querySelectorAll("button")[0].innerHTML = "Awesome work! Again?";
+			document.getElementById("done").style.display = "";
+		};
+
+		setupPage();
+	</script>
+</body>
+</html>
