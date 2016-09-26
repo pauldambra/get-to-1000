@@ -51,7 +51,7 @@
 <body>
 	<div id="initial-number" class="row"></div>
 	<div id="nearest-ten" class="row">
-		To get to the nearest 10 add: <input type="number" max="10" min="0" step="1"/>
+		To round up to the nearest 10 add: <input type="number" max="10" min="0" step="1"/>
 		<div class="mark-holder">
 			<span class="tick" style="display: none;">✓</span>
 			<span class="cross" style="display: none;">✘</span>
@@ -60,7 +60,7 @@
 	<div id="nearest-hundred" class="row" style="display: none;">
 		<div>That's <span class="start"></span></div>
 		<div>
-			To get to the nearest 100 add: <input type="number" max="99" min="0" step="1"/>			
+			To round up to the nearest 100 add: <input type="number" max="99" min="0" step="1"/>			
 			<div class="mark-holder">
 				<span class="tick" style="display: none;">✓</span>
 				<span class="cross" style="display: none;">✘</span>
@@ -70,7 +70,7 @@
 	<div id="nearest-thousand" class="row" style="display: none;">
 		<div>That's <span class="start"></span></div>
 		<div>
-			To get to 1000 add: <input type="number" max="99" min="0" step="1"/>			
+			To round up to 1000 add: <input type="number" max="99" min="0" step="1"/>			
 			<div class="mark-holder">
 				<span class="tick" style="display: none;">✓</span>
 				<span class="cross" style="display: none;">✘</span>
@@ -144,11 +144,19 @@
 			}
 		}
 
+		var ensureStartNumberDoesNotConfusinglyHaveZeroAsTheUnit = function(i) {
+			var asString = ''+i;
+			var onesInteger = asString[asString.length-1];
+			return onesInteger === '0' ? ++i : i;
+		}
+
 		var setupPage = function() {
 			var newUrl = catGifUrl + "&cacheBuster=" + new Date().getTime();
 			document.getElementById("cat-gif").src = newUrl;
 
 			start = (Math.floor(Math.random() * 1000) + 1);
+			start = ensureStartNumberDoesNotConfusinglyHaveZeroAsTheUnit(start);
+
 			tensDiff = diffToNearest(10, start);
 			nearestHundredStart = start + tensDiff;
 			hundredsDiff = diffToNearest(100, nearestHundredStart);
