@@ -63,9 +63,7 @@
         catGifUrl += "&cacheBuster=" + new Date().getTime();
 
         var i = new Image();
-        i.style.height = '100%';
         i.style.width = '100%';
-        i.style.objectFit = 'contain';
         i.onload = function() {
           console.log(catGifUrl, 'preloaded!')
           nextImage = i;
