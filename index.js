@@ -59,7 +59,7 @@
     var nextUrl;
     var preloadNextCatUrl = function() {
 
-        var catGifUrl = "http://thecatapi.com/api/images/get?format=src&type=gif";
+        var catGifUrl = "https://thecatapi.com/api/images/get?format=src&type=gif";
         catGifUrl + "&cacheBuster=" + new Date().getTime();
 
         var xhr = new XMLHttpRequest();
