@@ -56,30 +56,28 @@
         return onesInteger === '0' ? ++i : i;
     }
 
-    var nextUrl;
+    var nextImage;
     var preloadNextCatUrl = function() {
 
         var catGifUrl = "https://thecatapi.com/api/images/get?format=src&type=gif";
-        catGifUrl + "&cacheBuster=" + new Date().getTime();
+        catGifUrl += "&cacheBuster=" + new Date().getTime();
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', catGifUrl, true);
-        xhr.send();
-        xhr.onreadystatechange = function(e) {
-            if (e.target.readyState != 4) {
-                return;
-            }
-            var i = new Image(0, 0);
-            i.src = e.target.responseURL;
-            nextUrl = e.target.responseURL;
+        var i = new Image();
+        i.style.height = '100%';
+        i.style.width = '100%';
+        i.style.objectFit = 'contain';
+        i.onload = function() {
+          console.log(catGifUrl, 'preloaded!')
+          nextImage = i;
+
         }
+                i.src = catGifUrl;
     }
 
     var addCatImage = function() {
         var theGif = document.getElementById("cat-gif");
-        theGif.style.backgroundImage = 'url("' + nextUrl + '")';
-        theGif.style.backgroundSize = 'cover';
-        theGif.style.backgroundPosition = 'center';
+        theGif.innerHTML = '';
+        theGif.appendChild(nextImage);
     }
 
     var setupPage = function() {
